@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" href="data:,"> <!--simply to make favicon.ico shutup-->
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}" />
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta http-equiv="Pragma" content="no-cache" />
+        <meta http-equiv="Expires" content="0" />
+        <title>Trady</title>
+    </head>
+    <form method="POST" action="">
+        <body>
+            <header>
+                <h1>Trady</h1>
+                <p class="desc">simple algorithmic bot</p>
+                <input type="submit" name="sim" class="button sim" value="Run">
+            </header>
+            <main>
+                <section class="left">
+                    {% for ticker in tickers %}
+                        <label class="checky" >
+                            <input type="radio" class="radio" name="tick" value="{{ ticker }}"/>
+                            <span class="checkmark" ></span>
+                            {{ ticker }}
+                        </label>
+                    {% endfor %}
+                </section>
+                <section class="right">
+                    <select class="dropcontent strat" name="strat">
+                        <option selected>Breakout & Trailing Stop Loss</option>
+                        <option>Moving Average Crossover</option>
+                        <option>Mean Reversion</option>
+                    </select>
+                    <select class="dropcontent period" name="period">
+                        <option>1d</option>
+                        <option>5d</option>
+                        <option>1mo</option>
+                        <option>3mo</option>
+                        <option>6mo</option>
+                        <option>1y</option>
+                        <option selected>ytd</option>
+                        <option>2y</option>
+                        <option>5y</option>
+                        <option>10y</option>
+                        <option>max</option>
+                    </select>
+                </section>
+            </main>
+        </form>
+        {% block modal %}{% endblock %}
+    </body>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="{{ url_for('static',filename='script.js') }}"></script>
+    <script src="{{ url_for('static',filename='modal.js') }}"></script>
+</html>

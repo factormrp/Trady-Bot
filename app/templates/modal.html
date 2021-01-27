@@ -1,0 +1,13 @@
+{% extends "form.html" %}
+
+{% block modal %}
+    <div class="modal">
+        <button class="close-modal">&times;</button>
+        <figure>
+            {% if png != None %}
+                <img src="static/plots/{{ png }}" alt="Sick plot of gnarly preds bro" class="img">
+            {% endif %}
+        </figure>
+    </div>
+    <div class="overlay"></div>
+{% endblock %}
