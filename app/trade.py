@@ -174,13 +174,9 @@ def visualize(ticker,strat,period,prices,buys,sells):
     return '{}-{}-{}.png'.format(strat,ticker,period)
 
 def set_price_resolution(period):
-    if period == 'ytd':
-        return "1d"
-    elif period[-1] == 'd':
-        return '2m'
+    if period[-1] == 'd':
+        return '1m'
     elif period[-1] == 'o':
         return '1h'
-    elif period[-1] == 'y':
-        return '1d'
     else:
-        return '5d'
+        return '1d'

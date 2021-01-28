@@ -14,4 +14,7 @@ To mess around with the bot yourself, I suggest downloading the code here. **To 
 From there simply open a command shell in your folder containing tradebot.py and use: `flask run`
 
 ### USAGE NOTE
-Currently the routing is not yet robust enough to handle "un-nice" behavior. In particular, this means that you must make a selection for each option before pressing Run. Otherwise, the web app gets angry.
+The bot has a fixed set of securities and algorithms. I plan to add functionality for more strategies as I learn them. Additionally, the trading periods have combined interval resolutions. Below is the matching:
+- days      ==> 1 min
+- months    ==> 1 hr
+- years,max ==> 1 day
