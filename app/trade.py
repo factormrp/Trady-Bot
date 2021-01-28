@@ -9,6 +9,60 @@ from yfinance import Ticker
 import matplotlib.pyplot as plt 
 plt.style.use('fivethirtyeight')
 
+def calculate_rsi(prices,n):
+    # calculate n period differences
+    ndiff = prices.diff()
+    
+    # calculate the exponential moving averages of all up and down changes
+    ups,downs = ndiff.copy(),ndiff.copy()
+    ups[ups<0] = 0
+    downs[downs>0] = 0
+    ups = ups.ewm(span=2).mean()
+    downs = downs.abs().ewm(span=2).mean()
+
+    # calculate rsi values
+    return 100.0 - (100.0/(1.0+(ups/downs)))
+
+def filtered_n_rsi_mean_reversion(prices,period,n=2):
+    buys,sells = [],[]
+    enter = 30 if n == 4 else 5
+    open_pos_flag = -1
+    held = 0
+
+    try:
+        # generate exponential moving averages for entry filter and rsi values
+        filt50 = prices.ewm(span=50).mean()
+        filt200 = prices.ewm(span=200).mean()
+        rsis = calculate_rsi(prices,n)
+
+        # for each time frame in range, check if conditions hold for entry or exit and record price when indicators trigger
+        for i in range(len(prices)):
+            if filt50[i] > filt200[i] and open_pos_flag != 1 and rsis[i] <= enter:
+                buys.append(prices[i])
+                sells.append(nan)
+                open_pos_flag = 1
+                held += 1
+            elif rsis[i] >= 75 and open_pos_flag == 1:
+                buys.append(nan)
+                sells.append(prices[i])
+                open_pos_flag = 0
+                held = 0
+            elif held > 9 and open_pos_flag == 1:
+                buys.append(nan)
+                sells.append(prices[i])
+                open_pos_flag = 0
+                held = 0
+            else:
+                buys.append(nan)
+                sells.append(nan)
+                held += 1
+    except:
+        print('Applying algorithm went wrong. Exiting...')
+        return None,None
+
+    return buys,sells
+
+
 def dual_moving_average_crossover(prices,period):
     """ This function returns a tuple of lists with stored prices indicating when to buy and sell
 
@@ -23,16 +77,16 @@ def dual_moving_average_crossover(prices,period):
 
     try:
         # generate moving average series
-        mac10 = prices.rolling(window=10).mean()
-        mac34 = prices.rolling(window=34).mean()
+        sma10 = prices.rolling(window=10).mean()
+        sma34 = prices.rolling(window=34).mean()
 
-        # for each day in range, check for buy/sell indicator at open or close and if no open position, record price in list
+        # for each timeframe in range, check for buy/sell indicator at open or close and if no open position, record price in list
         for i in range(len(prices)):
-            if mac10[i] > mac34[i] and open_pos_flag != 1:
+            if sma10[i] > sma34[i] and open_pos_flag != 1:
                     buys.append(prices[i])
                     sells.append(nan)
                     open_pos_flag = 1
-            elif mac10[i] < mac34[i] and open_pos_flag != 0 and open_pos_flag != -1:
+            elif sma10[i] < sma34[i] and open_pos_flag == 1:
                     buys.append(nan)
                     sells.append(prices[i])
                     open_pos_flag = 0
@@ -75,9 +129,12 @@ def simulate(ticker,strat,period,cash=1000):
     elif strat == "Breakout & Trailing Stop Loss":
         buys,sells = None,None
         strat = "BTSL"
-    elif strat == "Mean Reversion":
-        buys,sells = None,None
-        strat = "MR"
+    elif strat == "4 Period Mean Reversion":
+        buys,sells = filtered_n_rsi_mean_reversion(prices,period,4)
+        strat = "4MR"
+    elif strat == "2 Period Mean Reversion":
+        buys,sells = filtered_n_rsi_mean_reversion(prices,period)
+        strat = "2MR"
     if buys is None and sells is None:
         exit()
 
